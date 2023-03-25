@@ -29,6 +29,18 @@ if(isset($_POST['login_form'])){
                 header('location:index.php');
             }
             else{
+                // User Verification Data  
+                $_SESSION['user_email']  = $userData['email'];
+                $_SESSION['user_mobile']  = $userData['mobile'];
+
+                $email_code = rand(111111,999999);
+                $stm=$connection->prepare("UPDATE users SET email_code=? WHERE email=?");
+                $stm->execute(array($email_code,$userData['email']));
+        
+                // Send Email for Verification
+                $message = "Your Verification Code is: ".$email_code;
+                mail($userData['email'],"Email Verification",$message);
+
                 header('location:verification.php');
             }
         }
