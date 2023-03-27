@@ -25,7 +25,7 @@ if(isset($_POST['email_verify_form'])){
         $stm->execute(array(null,1,$_SESSION['user_email']));
 
         $_SESSION['email_verify'] = 1;
-        unset($_SESSION['user_email']);
+       
 
         $success = "Email Verification Success!";
     }
@@ -48,13 +48,11 @@ if(isset($_POST['mobile_verify_form'])){
         $stm=$connection->prepare("UPDATE users SET mobile_code=?,mobile_status=? WHERE mobile=?");
         $stm->execute(array(null,1,$_SESSION['user_mobile']));
 
-        $_SESSION['mobile_verify'] = 1;
-        unset($_SESSION['user_mobile']);
-
+        $_SESSION['mobile_verify'] = 1; 
         $success = "Mobile Verification Success!";
     }
 }
- 
+
 ?>
 <!DOCTYPE html>
 <html class="h-100" lang="en">
@@ -151,6 +149,13 @@ if(isset($_POST['mobile_verify_form'])){
    <?php  
     
     if(isset($_SESSION['email_verify']) AND isset($_SESSION['mobile_verify'])){
+
+        $stm=$connection->prepare("UPDATE users SET status=? WHERE email_status=? AND mobile_status=? AND email=? AND mobile=?");
+        $stm->execute(array("Active",1,1,$_SESSION['user_email'],$_SESSION['user_mobile']));
+
+        unset($_SESSION['user_email']);
+        unset($_SESSION['user_mobile']);
+
         unset($_SESSION['email_verify']);
         unset($_SESSION['mobile_verify']);
     }

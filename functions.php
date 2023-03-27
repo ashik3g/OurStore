@@ -15,4 +15,21 @@ function InputCount($col,$value){
 //     $result=$stm->fetch(PDO::FETCH_ASSOC);
 //     return $result[$col];
 // }
+
+function getProfile($id){
+    global $connection;
+    $stm=$connection->prepare("SELECT * FROM users WHERE id=?");
+    $stm->execute(array($id));
+    $result=$stm->fetch(PDO::FETCH_ASSOC);
+    return $result; 
+}
+
+function get_header(){
+    require_once('header.php');
+}
+ 
+
+function get_footer(){
+    require_once('footer.php');
+}
  
