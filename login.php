@@ -1,4 +1,3 @@
-
 <?php  
 require_once('config.php');
 session_start();
@@ -26,7 +25,7 @@ if(isset($_POST['login_form'])){
 
             if($userData['mobile_status'] == 1 AND $userData['email_status'] == 1){
                 $_SESSION['user']  = $userData;
-                header('location:index.php');
+                header('location:'.GET_APP_URL().'/dashboard');
             }
             else{
                 // User Verification Data  
@@ -52,7 +51,7 @@ if(isset($_POST['login_form'])){
 }
 
 if(isset($_SESSION['user'])){
-    header('location:index.php');
+    header('location:'.GET_APP_URL().'/dashboard');
 }
 ?>
 <!DOCTYPE html>

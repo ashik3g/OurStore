@@ -134,6 +134,9 @@ if(isset($_POST['mobile_verify_form'])){
                                         Your Mobile Number Verification Successfully!
                                     </div>
                                 <?php endif;  ?>
+
+
+                                <a href="login.php">Back to Login</a>
                             </div>
                         </div>
                     </div>
