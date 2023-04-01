@@ -25,6 +25,7 @@ $profile = getProfile($_SESSION['user']['id']);
     <!-- Chartist -->
     <link rel="stylesheet" href="../plugins/chartist/css/chartist.min.css">
     <link rel="stylesheet" href="../plugins/chartist-plugin-tooltips/css/chartist-plugin-tooltip.css">
+    <link href="../plugins/summernote/dist/summernote.css" rel="stylesheet">
     <!-- Custom Stylesheet -->
     <link href="../css/style.css" rel="stylesheet">
     <link href="../css/custom.css" rel="stylesheet">
@@ -200,8 +201,8 @@ $profile = getProfile($_SESSION['user']['id']);
                             <i class="fa fa-shopping-cart menu-icon"></i><span class="nav-text">Products</span>
                         </a>
                         <ul aria-expanded="false">
-                            <li><a href="add-new-product.php">Add New</a></li>
-                            <li><a href="products.php">All Products</a>
+                            <li><a href="<?php APP_URL();?>/products/add-new.php">Add New</a></li>
+                            <li><a href="<?php APP_URL();?>/products/index.php">All Products</a>
                         </ul>
                     </li>
                     
@@ -211,8 +212,8 @@ $profile = getProfile($_SESSION['user']['id']);
                             <i class="icon-globe-alt menu-icon"></i><span class="nav-text">Manufacture</span>
                         </a>
                         <ul aria-expanded="false">
-                            <li><a href="add-new-menufacture.php">Add New</a></li>
-                            <li><a href="menufactures.php">All Manufacture</a>
+                            <li><a href="<?php APP_URL();?>/manufacture/add-new.php">Add New</a></li>
+                            <li><a href="<?php APP_URL();?>/manufacture/index.php">All Manufacture</a>
                         </ul>
                     </li>
 
@@ -221,8 +222,8 @@ $profile = getProfile($_SESSION['user']['id']);
                             <i class="icon-globe-alt menu-icon"></i><span class="nav-text">Purchase</span>
                         </a>
                         <ul aria-expanded="false">
-                            <li><a href="add-new-purchase.php">Add New</a></li>
-                            <li><a href="purchases.php">All Purchase</a>
+                            <li><a href="<?php APP_URL();?>/purchase/add-new.php">Add New</a></li>
+                            <li><a href="<?php APP_URL();?>/purchase/">All Purchase</a>
                         </ul>
                     </li>
 
