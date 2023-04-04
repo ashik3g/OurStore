@@ -48,6 +48,30 @@ function getProductCategoryName($col,$id){
     $result = $stm->fetch(PDO::FETCH_ASSOC);
     return $result[$col];
 }
+// Get Product Name
+function getProductName($col,$id){
+    global $connection;
+    $stm=$connection->prepare("SELECT $col FROM products WHERE id=?");
+    $stm->execute(array($id));
+    $result = $stm->fetch(PDO::FETCH_ASSOC);
+    return $result[$col];
+}
+// Get Manufacture Name
+function getManufactureName($col,$id){
+    global $connection;
+    $stm=$connection->prepare("SELECT $col FROM manufactures WHERE id=?");
+    $stm->execute(array($id));
+    $result = $stm->fetch(PDO::FETCH_ASSOC);
+    return $result[$col];
+}
+// Get Group Name
+function getGroupName($col,$name,$pid){
+    global $connection;
+    $stm=$connection->prepare("SELECT $col FROM groups WHERE group_name=? AND product_id=?");
+    $stm->execute(array($name,$pid));
+    $result = $stm->fetch(PDO::FETCH_ASSOC);
+    return $result[$col];
+}
 
 // function getAdmin($id,$col){
 //     global $connection;
@@ -76,3 +100,28 @@ function get_footer(){
     require_once('includes/footer.php');
 }
  
+
+// Send OTP On Mobile Number
+function SendSMS($to,$message){  
+    $token = "XXXXXXXXXXXXXXXXXXXXXX";
+    $url = "http://api.greenweb.com.bd/api.php?json";
+
+    $data= array(
+    'to'=>"$to",
+    'message'=>"$message",
+    'token'=>"$token"
+    ); 
+    $ch = curl_init(); 
+    curl_setopt($ch, CURLOPT_URL,$url);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+    curl_setopt($ch, CURLOPT_ENCODING, '');
+    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $smsresult = curl_exec($ch);
+    $smsresult = json_decode($smsresult,true);
+    $status = $smsresult[0]['status'];
+    return $status;
+    //Error Display
+    // echo curl_error($ch);
+}

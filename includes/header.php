@@ -223,8 +223,12 @@ $profile = getProfile($_SESSION['user']['id']);
                         </a>
                         <ul aria-expanded="false">
                             <li><a href="<?php APP_URL();?>/purchase/add-new.php">Add New</a></li>
+                            <li><a href="<?php APP_URL();?>/purchase/group-purchase.php">Group Purchase</a></li>
                             <li><a href="<?php APP_URL();?>/purchase/">All Purchase</a>
                         </ul>
+                    </li>
+                    <li class="mega-menu mega-menu-sm">
+                    <a href="<?php APP_URL();?>/groups/"><i class="icon-globe-alt menu-icon"></i><span class="nav-text">Groups</span></a>
                     </li>
 
                     <li class="nav-label">Sales</li>

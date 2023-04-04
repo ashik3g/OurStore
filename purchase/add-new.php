@@ -5,34 +5,51 @@ get_header();
 $user_id = $_SESSION['user']['id'];
 
 if(isset($_POST['add_new_form'])){
-    $manu_name = $_POST['manu_name'];
-    $address = $_POST['address'];
-    $mobile = $_POST['mobile'];
 
-    $mobileCount = GetColumnCount('manufactures','mobile',$mobile);
- 
-    if(empty($manu_name)){
-        $error = "Name is Required!";
+    $product_id = $_POST['product_id'];
+    $manufacture_id = $_POST['manufacture_id'];
+    $group_name = $_POST['group_name'];
+    $price_per_item = $_POST['price'];
+    $price_per_m_item = $_POST['mprice'];
+    $quantity = $_POST['quantity'];
+    $expire_date = $_POST['expire_date'];
+  
+    if(empty($group_name)){
+        $error = "Group Name is Required!";
     }
-    else if(empty($address)){
-        $error = "Address is Required!";
+    else if(empty($price_per_item)){
+        $error = "Price is Required!";
     }
-    else if(empty($mobile)){
-        $error = "Mobile Number is Required!";
+    else if(!is_numeric($price_per_item)){
+        $error = "Price must be Number!";
     }
-    else if(!is_numeric($mobile)){
-        $error = "Mobile Number must be Number!";
+    else if(empty($price_per_m_item)){
+        $error = "Manufacture Price is Required!";
     }
-    else if(strlen($mobile) != 11){
-        $error = "Mobile Number must be 11 Digits!";
+    else if(!is_numeric($price_per_m_item)){
+        $error = "Manufacture Price must be Number!";
     }
-    else if($mobileCount != 0){
-        $error = "Mobile Number Already Exists!";
-    }  
+    else if(empty($quantity)){
+        $error = "Quantity is Required!";
+    }
+    else if(!is_numeric($quantity)){
+        $error = "Quantity must be Number!";
+    }
+    else if(empty($expire_date)){
+        $error = "Expire Date is Required!";
+    }
     else{
         $now = date('Y-m-d H:i:s');
-        $stm=$connection->prepare("INSERT INTO manufactures(user_id,name,address,mobile,created_at) VALUES(?,?,?,?,?)");
-        $stm->execute(array($user_id,$manu_name,$address,$mobile,$now));
+        $total_price = $price_per_item*$quantity;
+        $total_m_price = $price_per_m_item*$quantity;
+
+        // Create Group
+        $stm=$connection->prepare("INSERT INTO groups(user_id,group_name,product_id,quantity,expire_date,per_item_price,per_item_m_price,total_price,total_m_price,created_at) VALUES(?,?,?,?,?,?,?,?,?,?)");
+        $stm->execute(array($user_id,$group_name,$product_id,$quantity,$expire_date,$price_per_item,$price_per_m_item,$total_price,$total_m_price,$now));
+
+        // Create Purchase
+        $stm=$connection->prepare("INSERT INTO purchases(user_id,manufacture_id,product_id,group_name,quantity,per_item_price,per_item_m_price,total_price,total_m_price,created_at) VALUES(?,?,?,?,?,?,?,?,?,?)");
+        $stm->execute(array($user_id,$manufacture_id,$product_id,$group_name,$quantity,$price_per_item,$price_per_m_item,$total_price,$total_m_price,$now));
 
         $success = "Create Successfully!";
     }
@@ -61,8 +78,8 @@ if(isset($_POST['add_new_form'])){
                     <div class="basic-form">
                         <form method="POST" action="">
                             <div class="form-group">
-                                <label for="manu_name">Select Product:</label>
-                                <select name="product_category" id="product_category" class="form-control">
+                                <label for="product_id">Select Product:</label>
+                                <select name="product_id" id="product_id" class="form-control">
                                     <?php  
                                     $products = GetTableData('products');
                                     foreach( $products as $product) :
@@ -73,8 +90,8 @@ if(isset($_POST['add_new_form'])){
                             </div>
                             
                             <div class="form-group">
-                                <label for="manu_name">Select Manufacture:</label>
-                                <select name="product_category" id="product_category" class="form-control">
+                                <label for="manufacture_id">Select Manufacture:</label>
+                                <select name="manufacture_id" id="manufacture_id" class="form-control">
                                     <?php  
                                     $manufactures = GetTableData('manufactures');
                                     foreach( $manufactures as $manu) :
@@ -100,17 +117,10 @@ if(isset($_POST['add_new_form'])){
                                 <label for="quantity">Quantity:</label>
                                 <input type="text" name="quantity" id="quantity" class="form-control input-default" placeholder="Quantity">
                             </div>
+                            
                             <div class="form-group">
-                                <label for="total_price">Total Price:</label>
-                                <input type="text" name="total_price" id="total_price" class="form-control input-default" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label for="total_m_price">Total Manufacture Price:</label>
-                                <input type="text" name="total_m_price" id="total_m_price" class="form-control input-default" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label for="expire">Expire Date:</label>
-                                <input type="date" name="expire" id="expire" class="form-control input-default" placeholder="Expire Date">
+                                <label for="expire_date">Expire Date:</label>
+                                <input type="date" name="expire_date" id="expire_date" class="form-control input-default" placeholder="Expire Date">
                             </div>
                             
                             <div class="form-group">

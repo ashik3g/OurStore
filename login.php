@@ -32,14 +32,26 @@ if(isset($_POST['login_form'])){
                 $_SESSION['user_email']  = $userData['email'];
                 $_SESSION['user_mobile']  = $userData['mobile'];
 
+                // Generate Email Code
                 $email_code = rand(111111,999999);
                 $stm=$connection->prepare("UPDATE users SET email_code=? WHERE email=?");
                 $stm->execute(array($email_code,$userData['email']));
+               
+                // Generate Mobile Code
+                $mobile_code = rand(111111,999999);
+                $stm=$connection->prepare("UPDATE users SET mobile_code=? WHERE mobile=?");
+                $stm->execute(array($mobile_code,$userData['mobile']));
+
+
         
                 // Send Email for Verification
                 $message = "Your Verification Code is: ".$email_code;
                 mail($userData['email'],"Email Verification",$message);
 
+                // Send SMS on mobile
+                $sms = "Your Verification Code is: ".$mobile_code;
+                SendSMS($userData['mobile'],$sms);
+                
                 header('location:verification.php');
             }
         }
