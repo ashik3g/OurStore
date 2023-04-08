@@ -88,6 +88,7 @@ if(isset($_POST['add_new_form'])){
                             <div class="form-group">
                                 <label for="product_id">Select Product:</label>
                                 <select name="product_id" id="product_id" class="form-control">
+                                    <option value="#">Select Product</option>
                                     <?php  
                                     $products = GetTableData('products');
                                     foreach( $products as $product) :
@@ -106,6 +107,7 @@ if(isset($_POST['add_new_form'])){
                             <div class="form-group">
                                 <label for="group_name">Group Name:</label>
                                 <select name="group_name" id="group_name" class="form-control">
+                                    
                                 </select>
                             </div>
                             <div class="form-group">
@@ -121,8 +123,9 @@ if(isset($_POST['add_new_form'])){
                                 <input type="text" name="mprice" id="mprice" class="form-control input-default" readonly>
                             </div>
                             <div class="form-group">
-                                <label for="quantity">Quantity:</label>
+                                <label for="quantity">Quantity: <span id="available_stock" class="badge badge-info"></span></label>
                                 <input type="number" name="quantity" id="quantity" class="form-control input-default" placeholder="Quantity">
+                                <input type="hidden" name="stock" id="stock">
                             </div>
                             <div class="form-group">
                                 <label for="total_price">Total Price:</label>
@@ -149,7 +152,7 @@ if(isset($_POST['add_new_form'])){
                             </div>
 
                             <div class="form-group">
-                                <input type="submit" name="add_new_form" class="btn btn-success" value="Create Sale">
+                                <input type="submit" id="saleBtn" name="add_new_form" class="btn btn-success" value="Create Sale" disabled>
                             </div>
                         </form>
                     </div>
@@ -161,11 +164,10 @@ if(isset($_POST['add_new_form'])){
 </div>
 <?php  get_footer(); ?>
 <script>
+    var valid = 0;
+    // GET Product Data
     $('#product_id').on('change',function(){
-        let product_id = $(this).val(); 
-        
-        // console.log(product_id);
- 
+        let product_id = $(this).val();  
         $.ajax({
             type:"POST",
             url: 'ajax.php',
@@ -173,24 +175,133 @@ if(isset($_POST['add_new_form'])){
                 product_id:product_id
             },
             success: function(response){
-                let productResult = JSON.parse(response); 
-                console.log(productResult);
+                let productResult = JSON.parse(response);  
                 if(productResult.count == 0){
-                    $('#ajaxError').show().text(productResult.message); 
+                    $('#ajaxError').show().text(productResult.message);  
                 }
                 else{
                     $('#ajaxError').hide();
                     $('#manufacture_name').val(productResult.manufacture_name);
                     $('#manufacture_id').val(productResult.manufacture_id);
+                    $('#stock').val(productResult.stock);
+                    $('#available_stock').text("Available Stock: "+productResult.stock);
 
                     // Groups 
-                }
-                
+                    $('#group_name').empty();
+                    let groups = productResult.groups;
+                    $('#group_name').append('<option value="#">Select Group</option>');
 
-            }
-
-        });
-
-
+                    $.each(groups,function(i,item){
+                        $('<option value="'+groups[i].id+'" >').html(
+                            '<span>'+groups[i].group_name+'</span>'
+                        ).appendTo('#group_name');
+                    });
+                    
+                } 
+            } 
+        }); 
     });
+
+
+    // GET Ajax Data
+    $('#group_name').on('change',function(){
+        let group_id = $(this).val(); 
+        $.ajax({
+            type:"POST",
+            url:"ajax.php",
+            data:{
+                group_id:group_id
+            },
+            success:function(response){
+                let groupResult = JSON.parse(response); 
+                $('#expire_date').val(groupResult.expire_date);
+                $('#price').val(groupResult.per_item_price);
+                $('#mprice').val(groupResult.per_item_m_price);
+            }
+        });
+    });
+
+    // Get Calculate Total Price
+    $('#quantity').on('keyup',function(){
+        let price = $('#price').val();
+        let quantity = $(this).val();
+        let stock = $('#stock').val();
+
+        if(price.length == 0){
+            $('#ajaxError').show().text("Please First Select Product and Group"); 
+        }
+        else if(!jQuery.isNumeric(quantity)){
+            $('#ajaxError').show().text("Quantity Must be Number!"); 
+        }
+        else if(quantity>stock){
+            $('#ajaxError').show().text("Product Stock is Low!"); 
+        }
+        else{
+            $('#ajaxError').hide();
+            let total_price = price*quantity;
+
+            $('#total_price').val(total_price);
+            $('#sub_total').val(total_price);
+
+            valid = 1;
+        } 
+    });
+
+    // Get Discount Total Price
+    $('#discount_amount').on('keyup',function(){
+        let type = $('#discount_type').val();
+        let discount_amount = $(this).val();
+
+        if(type == "fixed"){
+            if(!jQuery.isNumeric(discount_amount)){
+                $('#ajaxError').show().text("Discount Amount Must be Number!"); 
+                valid = 0;
+            }
+            else{
+                let total__price = $('#total_price').val();
+                let new_sub_total = total__price-discount_amount;
+                $('#sub_total').val(new_sub_total);
+
+                valid = 1;
+            } 
+        }
+        else if(type == "percentage"){
+            if(!jQuery.isNumeric(discount_amount)){
+                $('#ajaxError').show().text("Discount Amount Must be Number!"); 
+                valid = 0;
+            }
+            else{
+                let total___price = $('#total_price').val();
+                let percentage_amount = total___price*discount_amount/100;
+                let new__sub_total = total___price-percentage_amount;
+                $('#sub_total').val(new__sub_total);
+
+                valid = 1;
+            } 
+        } 
+        else{
+            $('#discount_amount').val('');
+            let total__price = $('#total_price').val();
+            $('#sub_total').val(total__price); 
+            valid = 1;
+        } 
+    });
+
+    $('#discount_type').on('change',function(){
+        let dis_type = $(this).val(); 
+        if(dis_type == "none"){
+            $('#discount_amount').val('');
+            let total__price = $('#total_price').val();
+            $('#sub_total').val(total__price); 
+
+            valid = 1;
+        }
+    });
+
+    if(valid == 1){
+        alert('Done');
+        $('#saleBtn').removeAttr('disabled');
+    }
+
+    console.log(valid);
 </script>
