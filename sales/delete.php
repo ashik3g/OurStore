@@ -2,8 +2,8 @@
 session_start();
 require_once('../config.php');
 
-DeleteTableData('purchases',$_REQUEST['id']);
+DeleteTableData('sales',$_REQUEST['id']);
 
-$url = GET_APP_URL().'/purchases?success=Delete Successfully!';
+$url = GET_APP_URL().'/sales?success=Delete Successfully!';
  
 header("location:$url");

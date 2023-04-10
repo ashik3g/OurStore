@@ -4,7 +4,7 @@
     $id = $_REQUEST['id'];
     $user_id = $_SESSION['user']['id'];
 
-    $purchaseDetails = $connection->prepare("SELECT * FROM purchases WHERE user_id=? AND id=?");
+    $purchaseDetails = $connection->prepare("SELECT * FROM sales WHERE user_id=? AND id=?");
     $purchaseDetails->execute(array($user_id,$id));
     $result = $purchaseDetails->fetch(PDO::FETCH_ASSOC);
 ?>
@@ -14,7 +14,7 @@
         <div class="col-lg-8">
         <div class="card">
             <div class="card-body">
-                    <h4 class="card-title">Purchase Details</h4>
+                    <h4 class="card-title">Sales Details</h4>
                     <hr>
                     <div class="table-responsive">
                         
@@ -30,13 +30,11 @@
                                 </tr>
                                 <tr>
                                     <td><b>Group Name:</b></td>
-                                    <td><?php echo  $result['group_name'];  ?></td>
+                                    <td><?php echo getGroupNameByID('group_name',$result['group_id'],$result['product_id']);  ?></td>
                                 </tr>
                                 <tr>
                                     <td><b>Expire Date:</b></td>
-                                    <td><?php 
-                                    $expire_date = getGroupName('expire_date',$result['group_name'],$result['product_id']); 
-                                    echo date('d-m-Y',strtotime($expire_date)); ?></td>
+                                    <td><?php echo date('d-m-Y',strtotime($result['expire_date'])); ?></td>
                                 </tr>
                                 <tr>
                                     <td><b>Quantity:</b></td>
@@ -44,19 +42,33 @@
                                 </tr>
                                 <tr>
                                     <td><b>Per Item Price:</b></td>
-                                    <td><?php echo  $result['per_item_price'];  ?> tk</td>
+                                    <td><?php echo  $result['price'];  ?> tk</td>
                                 </tr>
                                 <tr>
                                     <td><b>Per Item Manufacture Price:</b></td>
-                                    <td><?php echo  $result['per_item_m_price'];  ?> tk</td>
+                                    <td><?php echo  $result['mprice'];  ?> tk</td>
+                                </tr> 
+                                <tr>
+                                    <td><b>Discount:</b></td>
+                                    <td><?php
+                                    if( $result['discount_type'] == "fixed"){
+                                        echo  $result['discount_amount']." tk";
+                                    }
+                                    else if( $result['discount_type'] == "percentage"){
+                                        echo  $result['discount_amount']." %";
+                                    }
+                                    else{
+                                        echo "None";
+                                    }
+                                     ?></td>
                                 </tr>
                                 <tr>
                                     <td><b>Total Price:</b></td>
-                                    <td><?php echo  $result['total_price'];  ?> tk</td>
+                                    <td><?php echo  $result['total_price'];  ?></td>
                                 </tr>
                                 <tr>
-                                    <td><b>Total Manufacture Price:</b></td>
-                                    <td><?php echo  $result['total_m_price'];  ?> tk</td>
+                                    <td><b>Sub Total:</b></td>
+                                    <td><?php echo  $result['sub_total'];  ?> tk</td>
                                 </tr>
                                 <tr>
                                     <td><b>Created Date:</b></td>

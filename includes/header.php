@@ -182,7 +182,7 @@ $profile = getProfile($_SESSION['user']['id']);
                 <ul class="metismenu" id="menu">
                     <li class="nav-label">Dashboard</li>
                     <li>
-                        <a href="index.php" >
+                        <a href="<?php APP_URL();?>/dashboard">
                             <i class="icon-speedometer menu-icon"></i><span class="nav-text">Dashboard</span>
                         </a> 
                     </li>

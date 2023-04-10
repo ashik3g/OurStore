@@ -1,17 +1,16 @@
 <?php 
 require_once('../config.php');
 // get_header(); 
-require_once('../includes/header.php');
+require_once('../includes/header.php'); 
 ?>
 
 <div class="row">
 <div class="col-lg-3 col-sm-6">
     <div class="card gradient-1">
         <div class="card-body">
-            <h3 class="card-title text-white">Products Sold</h3>
+            <h3 class="card-title text-white">Total Purchase</h3>
             <div class="d-inline-block">
-                <h2 class="text-white">4565</h2>
-                <p class="text-white mb-0">Jan - March 2019</p>
+                <h2 class="text-white"><?php echo getTotalValue('purchases','total_price');  ?></h2> 
             </div>
             <span class="float-right display-5 opacity-5"><i class="fa fa-shopping-cart"></i></span>
         </div>
@@ -20,10 +19,9 @@ require_once('../includes/header.php');
 <div class="col-lg-3 col-sm-6">
     <div class="card gradient-2">
         <div class="card-body">
-            <h3 class="card-title text-white">Net Profit</h3>
+            <h3 class="card-title text-white">Total Sales</h3>
             <div class="d-inline-block">
-                <h2 class="text-white">$ 8541</h2>
-                <p class="text-white mb-0">Jan - March 2019</p>
+                <h2 class="text-white"><?php echo getTotalValue('sales','sub_total');  ?></h2> 
             </div>
             <span class="float-right display-5 opacity-5"><i class="fa fa-money"></i></span>
         </div>
@@ -32,10 +30,9 @@ require_once('../includes/header.php');
 <div class="col-lg-3 col-sm-6">
     <div class="card gradient-3">
         <div class="card-body">
-            <h3 class="card-title text-white">New Customers</h3>
+            <h3 class="card-title text-white">Total Products</h3>
             <div class="d-inline-block">
-                <h2 class="text-white">4565</h2>
-                <p class="text-white mb-0">Jan - March 2019</p>
+                <h2 class="text-white"><?php echo getTotalProducts();  ?></h2> 
             </div>
             <span class="float-right display-5 opacity-5"><i class="fa fa-users"></i></span>
         </div>

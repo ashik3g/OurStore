@@ -43,7 +43,7 @@ if(isset($_POST['update_form'])){
         <div class="col-lg-6 col-xl-6">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="card-title">Create New Category</h4>
+                    <h4 class="card-title">Update Sale</h4>
                     <hr> 
                     <?php if(isset($error)):?>
                     <div class="alert alert-danger">
@@ -59,18 +59,33 @@ if(isset($_POST['update_form'])){
                     <div class="basic-form">
                         <form method="POST" action="">
                             <?php  
-                            $cat_data = GetSingleData('categories',$id);
+                            $sale_data = GetSingleData('sales',$id);
                             
                             ?>
                             <div class="form-group">
-                                <label for="cat_name">Category Name:</label>
-                                <input type="text" name="cat_name" id="cat_name" class="form-control input-default" value="<?php echo $cat_data['category_name'] ?>">
+                                <label for="product_id">Select Product:</label>
+                                <select name="product_id" id="product_id" class="form-control">
+                                    <option value="#">Select Product</option>
+                                    <?php  
+                                    $products = GetTableData('products');
+                                    foreach( $products as $product) :
+                                    ?>
+                                    <option value="<?php echo $product['id']  ?>"
+                                    <?php
+                                    if($product['id'] == $sale_data['product_id']){
+                                        echo "selected";
+                                    }
+                                    ?>
+                                    ><?php echo $product['name']  ?></option>
+                                    <?php  endforeach; ?>
+                                </select>
                             </div>
-                            
+
                             <div class="form-group">
-                                <label for="cat_slug">Category Slug:</label>
-                                <input type="text" name="cat_slug" id="cat_slug" class="form-control input-default" value="<?php echo $cat_data['category_slug'] ?>">
+                                <label for="expire_date">Expire Date:</label>
+                                <input type="date" name="expire_date" id="expire_date" class="form-control input-default" value="<?php echo $sale_data['expire_date'];?>">
                             </div>
+                             
                             
                             <div class="form-group">
                                 <input type="submit" name="update_form" class="btn btn-success" value="Update">

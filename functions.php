@@ -56,6 +56,13 @@ function getProductName($col,$id){
     $result = $stm->fetch(PDO::FETCH_ASSOC);
     return $result[$col];
 }
+function getTotalProducts(){
+    global $connection;
+    $stm=$connection->prepare("SELECT id FROM products");
+    $stm->execute();
+    $result = $stm->rowCount();
+    return $result;
+}
 // Get Manufacture Name
 function getManufactureName($col,$id){
     global $connection;
@@ -69,6 +76,13 @@ function getGroupName($col,$name,$pid){
     global $connection;
     $stm=$connection->prepare("SELECT $col FROM groups WHERE group_name=? AND product_id=?");
     $stm->execute(array($name,$pid));
+    $result = $stm->fetch(PDO::FETCH_ASSOC);
+    return $result[$col];
+}
+function getGroupNameByID($col,$id,$pid){
+    global $connection;
+    $stm=$connection->prepare("SELECT $col FROM groups WHERE id=? AND product_id=?");
+    $stm->execute(array($id,$pid));
     $result = $stm->fetch(PDO::FETCH_ASSOC);
     return $result[$col];
 }
@@ -91,6 +105,15 @@ function getProfile($id){
     return $result; 
 }
 
+function getTotalValue($tbl,$col){ 
+    $total_sales =0;
+    $sales = GetTableData($tbl);
+    foreach($sales as $sale){
+        $total_sales =  $total_sales + $sale[$col];
+    }
+    return $total_sales;
+}
+
 function get_header(){
     require_once('includes/header.php');
 }
@@ -100,6 +123,7 @@ function get_footer(){
     require_once('includes/footer.php');
 }
  
+
 
 // Send OTP On Mobile Number
 function SendSMS($to,$message){  

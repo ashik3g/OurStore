@@ -6,19 +6,27 @@ $user_id = $_SESSION['user']['id'];
 
 if(isset($_POST['add_new_form'])){
 
+    $customer_name = $_POST['customer_name'];
     $product_id = $_POST['product_id'];
     $manufacture_id = $_POST['manufacture_id'];
     $group_name = $_POST['group_name'];
+    $expire_date = $_POST['expire_date'];
     $price_per_item = $_POST['price'];
     $price_per_m_item = $_POST['mprice'];
-    $quantity = $_POST['quantity'];
-    $expire_date = $_POST['expire_date'];
-  
-    if(empty($group_name)){
-        $error = "Group Name is Required!";
+    $quantity = $_POST['quantity']; 
+    $total_price = $_POST['total_price'];
+    $discount_type = $_POST['discount_type'];
+    $discount_amount = $_POST['discount_amount'];
+    $sub_total = $_POST['sub_total'];
+    
+    $db_expire_date = getGroupNameByID('expire_date',$group_name,$product_id); 
+    $db_stock = getProductName('stock',$product_id);
+
+    if(empty($customer_name)){
+        $error = "Customer Name is Required!";
     }
-    else if(empty($price_per_item)){
-        $error = "Price is Required!";
+    else if(empty($product_id)){
+        $error = "Product is Required!";
     }
     else if(!is_numeric($price_per_item)){
         $error = "Price must be Number!";
@@ -37,21 +45,26 @@ if(isset($_POST['add_new_form'])){
     }
     else if(empty($expire_date)){
         $error = "Expire Date is Required!";
-    }
+    } 
+    else if($db_expire_date<date('Y-m-d')){
+        $error = "Your Product is Expired!";
+    } 
+    else if($quantity>$db_stock){
+        $error = "Product Out of Stock!";
+    } 
     else{
         $now = date('Y-m-d H:i:s');
         $total_price = $price_per_item*$quantity;
         $total_m_price = $price_per_m_item*$quantity;
 
-        // Create Group
-        $stm=$connection->prepare("INSERT INTO groups(user_id,group_name,product_id,quantity,expire_date,per_item_price,per_item_m_price,total_price,total_m_price,created_at) VALUES(?,?,?,?,?,?,?,?,?,?)");
-        $stm->execute(array($user_id,$group_name,$product_id,$quantity,$expire_date,$price_per_item,$price_per_m_item,$total_price,$total_m_price,$now));
+        // Create Sale
+        $stm=$connection->prepare("INSERT INTO sales(user_id,customer_name,product_id,manufacture_id,group_id,expire_date,price,mprice,quantity,total_price,discount_type,discount_amount,sub_total,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+        $stm->execute(array($user_id,$customer_name,$product_id,$manufacture_id,$group_name,$expire_date,$price_per_item,$price_per_m_item,$quantity,$total_price,$discount_type,$discount_amount,$sub_total,$now));
 
         // Create Purchase
-        $stm=$connection->prepare("INSERT INTO purchases(user_id,manufacture_id,product_id,group_name,quantity,per_item_price,per_item_m_price,total_price,total_m_price,created_at) VALUES(?,?,?,?,?,?,?,?,?,?)");
-        $stm->execute(array($user_id,$manufacture_id,$product_id,$group_name,$quantity,$price_per_item,$price_per_m_item,$total_price,$total_m_price,$now));
-
-        $success = "Create Successfully!";
+        $stm=$connection->prepare("UPDATE products SET stock=stock-? WHERE id=?");
+        $stm->execute(array($quantity,$product_id));
+        $success = "Sales Successfully!";
     }
 
 }
@@ -82,7 +95,7 @@ if(isset($_POST['add_new_form'])){
                         <form method="POST" action="">
                             <div class="form-group">
                                 <label for="customer_name">Customer Name:</label>
-                                <input type="text" name="customer_name" id="customer_name" class="form-control input-default" placeholder="Customer Name">
+                                <input type="text" name="customer_name" id="customer_name" class="form-control input-default" placeholder="Customer Name" required>
                             </div>
 
                             <div class="form-group">
@@ -116,7 +129,7 @@ if(isset($_POST['add_new_form'])){
                             </div>
                             <div class="form-group">
                                 <label for="price">Price:</label>
-                                <input type="text" name="price" id="price" class="form-control input-default" readonly>
+                                <input type="text" name="price" id="price" class="form-control input-default" readonly required>
                             </div>
                             <div class="form-group">
                                 <label for="mprice">Manufacture Price:</label>
@@ -124,12 +137,12 @@ if(isset($_POST['add_new_form'])){
                             </div>
                             <div class="form-group">
                                 <label for="quantity">Quantity: <span id="available_stock" class="badge badge-info"></span></label>
-                                <input type="number" name="quantity" id="quantity" class="form-control input-default" placeholder="Quantity">
+                                <input type="number" name="quantity" id="quantity" class="form-control input-default" placeholder="Quantity" required>
                                 <input type="hidden" name="stock" id="stock">
                             </div>
                             <div class="form-group">
                                 <label for="total_price">Total Price:</label>
-                                <input type="text" name="total_price" id="total_price" class="form-control input-default" readonly>
+                                <input type="text" name="total_price" id="total_price" class="form-control input-default" readonly required>
                             </div>
                             
                             <div class="form-group">
@@ -148,11 +161,11 @@ if(isset($_POST['add_new_form'])){
 
                             <div class="form-group">
                                 <label for="sub_total">Sub Total:</label>
-                                <input type="text" name="sub_total" id="sub_total" class="form-control input-default" readonly>
+                                <input type="text" name="sub_total" id="sub_total" class="form-control input-default" readonly required>
                             </div>
 
                             <div class="form-group">
-                                <input type="submit" id="saleBtn" name="add_new_form" class="btn btn-success" value="Create Sale" disabled>
+                                <input type="submit" id="saleBtn" name="add_new_form" class="btn btn-success" value="Create Sale">
                             </div>
                         </form>
                     </div>
@@ -164,7 +177,7 @@ if(isset($_POST['add_new_form'])){
 </div>
 <?php  get_footer(); ?>
 <script>
-    var valid = 0;
+    
     // GET Product Data
     $('#product_id').on('change',function(){
         let product_id = $(this).val();  
@@ -241,9 +254,7 @@ if(isset($_POST['add_new_form'])){
             let total_price = price*quantity;
 
             $('#total_price').val(total_price);
-            $('#sub_total').val(total_price);
-
-            valid = 1;
+            $('#sub_total').val(total_price); 
         } 
     });
 
@@ -254,15 +265,12 @@ if(isset($_POST['add_new_form'])){
 
         if(type == "fixed"){
             if(!jQuery.isNumeric(discount_amount)){
-                $('#ajaxError').show().text("Discount Amount Must be Number!"); 
-                valid = 0;
+                $('#ajaxError').show().text("Discount Amount Must be Number!");  
             }
             else{
                 let total__price = $('#total_price').val();
                 let new_sub_total = total__price-discount_amount;
-                $('#sub_total').val(new_sub_total);
-
-                valid = 1;
+                $('#sub_total').val(new_sub_total); 
             } 
         }
         else if(type == "percentage"){
@@ -274,16 +282,13 @@ if(isset($_POST['add_new_form'])){
                 let total___price = $('#total_price').val();
                 let percentage_amount = total___price*discount_amount/100;
                 let new__sub_total = total___price-percentage_amount;
-                $('#sub_total').val(new__sub_total);
-
-                valid = 1;
+                $('#sub_total').val(new__sub_total); 
             } 
         } 
         else{
             $('#discount_amount').val('');
             let total__price = $('#total_price').val();
-            $('#sub_total').val(total__price); 
-            valid = 1;
+            $('#sub_total').val(total__price);  
         } 
     });
 
@@ -292,16 +297,8 @@ if(isset($_POST['add_new_form'])){
         if(dis_type == "none"){
             $('#discount_amount').val('');
             let total__price = $('#total_price').val();
-            $('#sub_total').val(total__price); 
-
-            valid = 1;
+            $('#sub_total').val(total__price);  
         }
     });
-
-    if(valid == 1){
-        alert('Done');
-        $('#saleBtn').removeAttr('disabled');
-    }
-
-    console.log(valid);
+ 
 </script>
