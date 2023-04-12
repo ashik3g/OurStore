@@ -122,6 +122,22 @@ function get_header(){
 function get_footer(){
     require_once('includes/footer.php');
 }
+
+// Admins Functions
+function admin_header(){
+    require_once('admin/header.php');
+}
+function admin_footer(){
+    require_once('admin/footer.php');
+}
+// Get Table Data
+function GetAdminData($tbl){
+    global $connection;
+    $stm=$connection->prepare("SELECT * FROM $tbl");
+    $stm->execute();
+    $result = $stm->fetchAll(PDO::FETCH_ASSOC);
+    return $result;
+}
  
 
 
